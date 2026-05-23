@@ -18,6 +18,8 @@ final class PreProductStocksTable extends PowerGridComponent
 {
     public string $tableName = 'pre_product_stocks';
 
+    protected $listeners = ['delete'];
+
     public function setUp(): array
     {
 //        $this->showCheckBox();
@@ -163,5 +165,19 @@ final class PreProductStocksTable extends PowerGridComponent
             $this->dispatch('toast', type: 'error', message: 'Failed to update order: ' . $e->getMessage());
         }
     }
+
+    public function delete(\App\Models\PreProductStock $stock): void
+    {
+        $dltInvoice = $stock->delete();
+
+        if ($dltInvoice) {
+            $this->dispatch('pg:eventRefresh-default');
+            $this->dispatch('refresh-browser');
+            $this->dispatch('toast', type: 'success', message: 'Stock deleted successfully');
+        } else {
+            $this->dispatch('toast', type: 'error', message: 'Stock not deleted');
+        }
+    }
+
 
 }
