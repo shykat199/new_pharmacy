@@ -132,21 +132,33 @@
 
                                             <div class="col-12 col-lg-3 col-md-4 col-sm-6">
                                                 <div class="mb-3">
-                                                    <label for="box_{{ $key }}" class="form-label">Medicine
-                                                        Box</label>
-                                                    <input wire:model="box.{{ $key }}" type="number"
-                                                        step="0.01" class="form-control medicine-box"
-                                                        placeholder="Medicine box" x-on:input="debounceSave()">
+                                                    <label for="box_{{ $key }}" class="form-label">Medicine Box</label>
+                                                    <input
+                                                        wire:model="box.{{ $key }}"
+                                                        type="number"
+                                                        step="0.01"
+                                                        class="form-control medicine-box arrow-focus"
+                                                        data-type="box"
+                                                        placeholder="Medicine box"
+                                                        x-on:input="debounceSave()"
+                                                        onkeydown="moveInputByArrow(event, this)"
+                                                    >
                                                 </div>
                                             </div>
 
                                             <div class="col-12 col-lg-3 col-md-4 col-sm-6">
                                                 <div class="mb-3">
-                                                    <label for="pieces_{{ $key }}" class="form-label">Medicine
-                                                        Pieces</label>
-                                                    <input wire:model="pieces.{{ $key }}" type="number"
-                                                        step="0.01" class="form-control medicine-pieces"
-                                                        placeholder="Medicine pieces" x-on:input="debounceSave()">
+                                                    <label for="pieces_{{ $key }}" class="form-label">Medicine Pieces</label>
+                                                    <input
+                                                        wire:model="pieces.{{ $key }}"
+                                                        type="number"
+                                                        step="0.01"
+                                                        class="form-control medicine-pieces arrow-focus"
+                                                        data-type="pieces"
+                                                        placeholder="Medicine pieces"
+                                                        x-on:input="debounceSave()"
+                                                        onkeydown="moveInputByArrow(event, this)"
+                                                    >
                                                 </div>
                                             </div>
                                         </div>
@@ -225,9 +237,41 @@
             });
 
         });
-    </script>
 
-    <script>
+        function moveInputByArrow(event, currentInput) {
+            if (event.key !== 'ArrowUp' && event.key !== 'ArrowDown') {
+                return;
+            }
+
+            event.preventDefault();
+
+            let type = currentInput.dataset.type;
+
+            let inputs = Array.from(document.querySelectorAll(
+                `.arrow-focus[data-type="${type}"]`
+            ));
+
+            let currentIndex = inputs.indexOf(currentInput);
+
+            if (currentIndex === -1) {
+                return;
+            }
+
+            let nextIndex = event.key === 'ArrowDown'
+                ? currentIndex + 1
+                : currentIndex - 1;
+
+            if (inputs[nextIndex]) {
+                inputs[nextIndex].focus();
+                inputs[nextIndex].select();
+            }
+        }
+
+        $(document).on('wheel', '.medicine-box, .medicine-pieces', function () {
+            this.blur();
+        });
+
+
         $('#companySelect2').on('change', function() {
             Livewire.dispatch('changeEvent', {
                 value: $(this).val(),

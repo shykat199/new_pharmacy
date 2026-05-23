@@ -156,14 +156,14 @@
                                         </td>
 
                                         <td>
-                                            <input name="rows[{{ $index }}][price]" step="any" type="number" class="form-control" placeholder="Enter price">
+                                            <input name="rows[{{ $index }}][price]" step="any" type="number" class="form-control product-price" placeholder="Enter price">
                                         </td>
                                         <td>
                                             <input readonly name="rows[{{ $index }}][stock]" type="text" class="form-control" placeholder="Stock" style="width: 80px">
                                         </td>
                                         @if (auth()->user()->role == ADMIN_ROLE)
                                             <td>
-                                                <input type="number" name="rows[{{ $index }}][discount]" class="form-control" placeholder="Discount" style="width: 80px">
+                                                <input type="number" name="rows[{{ $index }}][discount]" class="form-control product-discount" placeholder="Discount" style="width: 80px">
                                             </td>
                                         @endif
                                         <td>
@@ -408,6 +408,10 @@
 
     <script>
 
+        $(document).on('wheel', '.qty-field, .pieces-field, .product-price, .product-discount', function () {
+            this.blur();
+        });
+
         function arrowInit() {
             document.addEventListener('keydown', function(e) {
                 // Only handle arrow keys
@@ -590,19 +594,19 @@
             </td>
             <td>
                 <div class="d-flex">
-                    <input type="number" name="rows[${currentIndex}][qty]" class="form-control me-2" placeholder="Box" style="width: 50%;">
-                    <input type="number" step="any" name="rows[${currentIndex}][pieces]" class="form-control" placeholder="Pieces" style="width: 50%;">
+                    <input type="number" name="rows[${currentIndex}][qty]" class="form-control qty-field me-2" placeholder="Box" style="width: 50%;">
+                    <input type="number" step="any" name="rows[${currentIndex}][pieces]" class="form-control pieces-field" placeholder="Pieces" style="width: 50%;">
                 </div>
             </td>
             <td>
-                <input name="rows[${currentIndex}][price]" step="any" type="number" class="form-control" placeholder="Enter price">
+                <input name="rows[${currentIndex}][price]" step="any" type="number" class="form-control product-price" placeholder="Enter price">
             </td>
             <td>
                 <input readonly name="rows[${currentIndex}][stock]" type="text" class="form-control" placeholder="Stock" style="width: 80px">
             </td>
             @if (auth()->user()->role == ADMIN_ROLE)
                 <td>
-                    <input type="number" name="rows[${currentIndex}][discount]" class="form-control" placeholder="Discount" step="any" style="width: 80px">
+                    <input type="number" name="rows[${currentIndex}][discount]" class="form-control product-discount" placeholder="Discount" step="any" style="width: 80px">
                 </td>
             @endif
                 <td>
