@@ -1,0 +1,10 @@
+[27-Jun-2025 05:10:55 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.32. in /home/ferdousi/public_html/vendor/composer/platform_check.php on line 28
+[27-Jun-2025 05:11:12 UTC] PHP Fatal error:  Composer detected issues in your platform: Your Composer dependencies require a PHP version ">= 8.2.0". You are running 8.1.32. in /home/ferdousi/public_html/vendor/composer/platform_check.php on line 28
+[11-Jul-2025 12:38:45 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 8192 bytes) in /home/ferdousi/public_html/vendor/spatie/laravel-permission/src/Guard.php on line 31
+[11-Jul-2025 12:39:37 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes) in /home/ferdousi/public_html/vendor/spatie/laravel-permission/src/Guard.php on line 31
+[12-Jul-2025 04:22:21 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes) in /home/ferdousi/public_html/vendor/spatie/laravel-permission/src/Guard.php on line 31
+[12-Jul-2025 13:39:00 UTC] PHP Fatal error:  Allowed memory size of 134217728 bytes exhausted (tried to allocate 20480 bytes) in /home/ferdousi/public_html/vendor/laravel/framework/src/Illuminate/Database/Eloquent/Concerns/HasAttributes.php on line 1077
+[15-Jul-2025 18:07:09 UTC] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/ferdousi/public_html/vendor/symfony/polyfill-mbstring/Mbstring.php on line 667
+[15-Jul-2025 18:08:04 UTC] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/ferdousi/public_html/vendor/symfony/polyfill-mbstring/Mbstring.php on line 667
+[15-Jul-2025 18:08:55 UTC] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/ferdousi/public_html/vendor/symfony/polyfill-mbstring/Mbstring.php on line 667
+[15-Jul-2025 18:09:53 UTC] PHP Fatal error:  Maximum execution time of 30 seconds exceeded in /home/ferdousi/public_html/vendor/symfony/polyfill-mbstring/Mbstring.php on line 667

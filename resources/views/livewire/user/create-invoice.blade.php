@@ -1,0 +1,1301 @@
+<div>
+    @push('style')
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css"
+              integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg=="
+              crossorigin="anonymous" referrerpolicy="no-referrer" />
+{{--        <style>--}}
+{{--            .select2-container {--}}
+{{--                width: 100% !important;--}}
+{{--            }--}}
+
+{{--            .select2-selection {--}}
+{{--                width: 100% !important;--}}
+{{--                height: 40px !important;--}}
+{{--            }--}}
+
+
+{{--            /* Make sure the dropdown is scrollable */--}}
+{{--            .select2-dropdown {--}}
+{{--                max-height: 50vh !important;--}}
+{{--                overflow-y: auto !important;--}}
+{{--                -webkit-overflow-scrolling: touch;--}}
+{{--                overscroll-behavior: contain;--}}
+{{--            }--}}
+
+{{--        </style>--}}
+        <style>
+            .select2-container {
+                width: 100% !important;
+            }
+
+            .select2-selection {
+                width: 100% !important;
+                height: 40px !important;
+            }
+            .select2-results__options{
+                max-height:50vh;
+                overflow-y:auto !important;
+                -webkit-overflow-scrolling:touch !important;
+            }
+
+            /*.no-page-scroll {*/
+            /*    position: fixed !important;*/
+            /*    overflow: hidden !important;*/
+            /*    width: 100% !important;*/
+            /*    touch-action: none !important;*/
+            /*}*/
+
+            .no-page-scroll {
+                position: relative !important;
+                overflow: hidden !important;
+                touch-action: none !important;
+            }
+
+            .duplicate-error {
+                background-color: #f55d6a !important; /* light red */
+            }
+
+        </style>
+    @endpush
+    @section('admin.breadcrumb')
+        <li class="breadcrumb-item" aria-current="page">{{ $page }}</li>
+    @endsection
+    <div class="row">
+        <form class="forms-sample" id="invoiceForm">
+            <div class="col-md-12 grid-margin stretch-card">
+                <div class="card overflow-hidden">
+                    <div class="card-header">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h3>{{ $page }}</h3>
+                        </div>
+                    </div>
+
+                    <div id="page-wrapper">
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table invoice-create-table">
+                                    <thead>
+                                    <tr class="text-center">
+                                        <th>Product</th>
+                                        <th>Quantity<br>Pieces</th>
+                                        <th>Unit<br>Price</th>
+    {{--                                    <th>Stock</th>--}}
+                                        @if(auth()->user()->role == ADMIN_ROLE)
+                                            <th>Discount<br>(%)</th>
+                                        @endif
+                                        <th>Total</th>
+                                        <th>Action</th>
+                                    </tr>
+                                    </thead>
+                                    @php
+                                        $index = 0;
+                                    @endphp
+
+                                    <tbody id="invoice-order-item">
+                                    <tr class="invoice-row">
+                                        <td style="width: 280px;">
+                                            <div class="position-relative">
+                                                <div wire:ignore>
+                                                    <select id="companySelect3" class="js-example-basic-single3 form-select" style="width: 100%;">
+                                                        <option value="">Select Medicine Type</option>
+                                                        <!-- options go here -->
+                                                    </select>
+                                                </div>
+                                                <div class="text-danger validation-error mt-1 qty-pieces-error"></div>
+                                            </div>
+
+                                            <!-- Hidden inputs -->
+                                            <input value="" name="rows[{{ $index }}][companyId]" type="hidden" class="form-control">
+                                            <input value="" name="rows[{{ $index }}][productName]" type="hidden" class="form-control">
+                                            <input value="" name="rows[{{ $index }}][product_id]" type="hidden" class="form-control">
+                                            <input value="" name="rows[{{ $index }}][box_per_pic]" type="hidden" class="form-control">
+                                            <input value="" name="rows[{{ $index }}][unit_price]" type="hidden" class="form-control">
+                                        </td>
+
+                                        <td>
+                                            <div class="d-flex flex-column">
+                                                <div class="d-flex">
+                                                    <input type="number" name="rows[{{ $index }}][qty]" class="form-control me-2 qty-field" placeholder="Box" style="width: 50%;">
+                                                    <input type="number" step="any" name="rows[{{ $index }}][pieces]" class="form-control pieces-field" placeholder="Pieces" style="width: 50%;">
+                                                </div>
+{{--                                                <div class="text-danger validation-error mt-1 qty-pieces-error"></div>--}}
+                                            </div>
+                                        </td>
+
+                                        <td>
+                                            <input readonly name="rows[{{ $index }}][price]" step="any" type="number" class="form-control" placeholder="Enter price">
+                                        </td>
+    {{--                                    <td>--}}
+    {{--                                        <input readonly name="rows[{{ $index }}][stock]" type="text" class="form-control" placeholder="Stock" style="width: 80px">--}}
+    {{--                                    </td>--}}
+                                        @if (auth()->user()->role == ADMIN_ROLE)
+                                            <td>
+                                                <input type="number" name="rows[{{ $index }}][discount]" class="form-control" placeholder="Discount" step="any" style="width: 80px">
+                                            </td>
+                                        @endif
+                                        <td>
+                                            <input readonly name="rows[{{ $index }}][total]"
+                                                   type="text" class="form-control" placeholder="Total"
+                                                   style="width: 90px">
+                                        </td>
+                                        <td>
+                                            <button type="button" onclick="removeRow(this)"
+                                                    class="btn btn-danger btn-xs"
+                                                    @if (count($rows) === 1) disabled @endif>
+                                                <i class="fa-solid fa-delete-left"></i>
+                                            </button>
+
+                                            {{--                                            <button onclick="addRow()" type="button"--}}
+                                            {{--                                                    class="btn btn-primary btn-xs" id="add-row-btn"><i--}}
+                                            {{--                                                    class="fa-solid fa-plus-circle"></i></button>--}}
+                                        </td>
+                                    </tr>
+                                    </tbody>
+
+                                    <tfoot>
+                                        <tr>
+
+                                        <td colspan="2">
+                                            <button onclick="addRow()" type="button"
+                                                    class="btn btn-primary btn-xs mb-2 add-new-row" id="add-row-btn"><i
+                                                    class="fa-solid fa-plus-circle"></i></button>
+                                            <div class="d-flex justify-content-start flex-column align-items-start">
+                                                <label for="note" class="mb-1">Note</label>
+                                                <textarea id="note" name="note" class="form-control" rows="3"
+                                                          placeholder="Enter your note here..."></textarea>
+                                            </div>
+                                        </td>
+
+                                        <td colspan="7">
+                                            <div class="d-flex justify-content-end flex-column align-items-end">
+
+                                                <!-- Invoice Id -->
+                                                <input type="hidden" name="invoiceId" id="invoiceId"
+                                                       class="form-control text-end" placeholder="0.00"
+                                                       style="max-width: 200px;">
+
+                                                <!-- Total Amount Before Discount -->
+                                                <input name="total_amount" id="total_amount" class="form-control text-end" type="hidden"
+                                                       placeholder="Total before discount"
+                                                       style="max-width: 200px;" readonly>
+
+                                                <!-- Total Discount -->
+                                                <input name="custom_discount" id="custom_discount" class="form-control text-end"
+                                                       type="hidden"
+                                                       placeholder="Total discount"
+                                                       style="max-width: 200px;" readonly>
+
+                                                <!--Total -->
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <label class="fw-bold me-2">Total:</label>
+                                                    <input name="totalMedicinePrice" type="number"
+                                                           id="totalMedicinePrice" class="form-control text-end"
+                                                           placeholder="0.00" readonly style="max-width: 200px;">
+                                                </div>
+
+                                                @can('apply other charge')
+
+                                                    <!-- Other Charge -->
+                                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                                        <label class="fw-bold me-2">Other Charge:</label>
+                                                        <input name="otherCharge" type="number" step="any"
+                                                               id="otherCharge" class="form-control text-end"
+                                                               placeholder="Other charge" style="max-width: 200px;">
+                                                    </div>
+                                                @endcan
+
+                                                <!-- Grand Total -->
+                                                <div class="d-flex align-items-center gap-2 mb-2">
+                                                    <label class="fw-bold me-2">Grand Total:</label>
+                                                    <input readonly type="number" name="grandTotal" step="any"
+                                                           class="form-control text-end grandTotal"
+                                                           placeholder="0.00" style="max-width: 200px;">
+                                                </div>
+
+                                                <!-- Paid Amount -->
+                                                @can('apply invoice paid amount')
+                                                    <div class="d-flex align-items-center gap-2 mb-2">
+                                                        <label class="fw-bold me-2">Paid Amount:</label>
+                                                        <input type="number" id="paidAmount" name="paidAmount"
+                                                               step="any" class="form-control text-end"
+                                                               placeholder="Paid amount" style="max-width: 200px;">
+                                                    </div>
+                                                @endcan
+
+
+                                                <!-- Due Amount -->
+                                                <div class="d-flex align-items-center gap-2">
+                                                    <label class="fw-bold me-2">Due Amount:</label>
+                                                    <input readonly type="number" name="dueAmount" step="any"
+                                                           class="form-control text-end" placeholder="0.00"
+                                                           style="max-width: 200px;">
+                                                </div>
+                                                <div class="text-danger validation-error mt-1 due-amount-error"></div>
+                                            </div>
+                                        </td>
+
+                                    </tr>
+                                    </tfoot>
+
+                                </table>
+                            </div>
+                            @if (auth()->user()->role == ADMIN_ROLE)
+                                <div class="row">
+                                    <div class="d-flex flex-wrap gap-2 mt-3">
+                                        <!-- Submit Button -->
+                                        <button type="button" class="btn btn-primary submit add-new-row" id="pending_invoice">
+                                            <span>Make It Pending</span>
+                                        </button>
+
+                                        @if (auth()->user()->role == ADMIN_ROLE)
+                                            <button type="button" class="btn btn-secondary submit"
+                                                    onclick="generatePdf('withOutDiscount','draft')">
+                                                <span>Print Pending Invoice Without Discount &nbsp; <i
+                                                        class="fa fa-print"></i></span>
+                                            </button>
+                                            <button type="button" class="btn btn-warning submit"
+                                                    onclick="generatePdf('withDiscount','draft')">
+                                                <span>Print Pending Invoice With Discount &nbsp; <i class="fa fa-print"></i></span>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="row">
+                                <div class="d-flex flex-wrap gap-2 mt-3">
+                                    <button type="submit" class="btn btn-primary submit mt-3 add-new-row">
+                                        <span>Create Invoice</span>
+                                    </button>
+
+                                    @if (auth()->user()->role == ADMIN_ROLE)
+                                        <button type="button" class="btn btn-secondary submit mt-3"
+                                                onclick="generatePdf()">
+                                            <span>Print Invoice Without Discount &nbsp; <i class="fa fa-print"></i></span>
+                                        </button>
+                                        <button type="button" class="btn btn-warning submit mt-3"
+                                                onclick="generatePdf('withDiscount')">
+                                            <span>Print Invoice With Discount &nbsp; <i class="fa fa-print"></i></span>
+                                        </button>
+                                    @endif
+
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div wire:ignore.self class="modal fade" id="createModal" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" style="background: rgba(0, 0, 0, 0.5);">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <form class="forms-sample" wire:submit.prevent="saveCustomer">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Add New Customer</h5>
+                        <button wire:click.prevent="closeModal" type="button" class="btn-close" data-bs-dismiss="modal"
+                                aria-label="btn-close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input wire:model="userName" type="text" class="form-control" id="name" placeholder="Username">
+                            @error('userName') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input wire:model="userEmail" type="email" class="form-control" id="email" placeholder="Email">
+                            @error('userEmail') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="phone" class="form-label">Phone</label>
+                            <input wire:model="userPhone" type="text" class="form-control" id="phone" placeholder="Phone number">
+                            @error('userPhone') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="address" class="form-label">Address</label>
+                            <textarea wire:model="userAddress" class="form-control" id="address" rows="5"></textarea>
+                            @error('userAddress') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+
+                        {{--                            <div class="mb-3">--}}
+                        {{--                                <label for="status" class="form-label">Status</label>--}}
+                        {{--                                <select wire:model="userStatus" class="form-select" id="status">--}}
+                        {{--                                    <option value="{{ ACTIVE_STATUS }}">Active</option>--}}
+                        {{--                                    <option value="0">Inactive</option>--}}
+                        {{--                                </select>--}}
+                        {{--                                @error('userStatus') <span class="text-danger">{{ $message }}</span> @enderror--}}
+                        {{--                            </div>--}}
+
+                        <div class="mb-3">
+                            <label for="password" class="form-label">Password</label>
+                            <input wire:model="userPassword" type="password" class="form-control" id="password" placeholder="Password">
+                            @error('userPassword') <span class="text-danger">{{ $message }}</span> @enderror
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" wire:click.prevent="closeModal"
+                                data-bs-dismiss="modal">Close
+                        </button>
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="modal fade" id="pdfPreviewModal" tabindex="-1" aria-labelledby="pdfPreviewModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="pdfPreviewModalLabel">Invoice Preview</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-0">
+                    <iframe id="pdfIframe" src="" width="100%" height="700px"
+                            style="border: none;"></iframe>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+@push('scripts')
+
+    <script>
+        let currentIndex = 1;
+        let invoiceId = document.getElementById('invoiceId')
+        let savedScrollY = 0;
+
+        // function lockBodyScroll () {
+        //     if (!isMobileDevice()) return;
+        //     savedScrollY = window.scrollY || window.pageYOffset;
+        //     document.body.classList.add('no-page-scroll');
+        //     document.body.style.top = `-${savedScrollY}px`;
+        // }
+
+        // function unlockBodyScroll () {
+        //     if (!isMobileDevice()) return;
+        //     document.body.classList.remove('no-page-scroll');
+        //     document.body.style.top = '';
+        //     window.scrollTo(0, savedScrollY);
+        // }
+
+        function lockBodyScroll() {
+            if (!isMobileDevice()) return;
+            savedScrollY = window.scrollY || window.pageYOffset;
+
+            const wrapper = document.getElementById('page-wrapper');
+            wrapper.classList.add('no-page-scroll');
+            // wrapper.style.top = `-${savedScrollY}px`;
+            wrapper.style.position = 'fixed';
+            wrapper.style.width = '100%';
+        }
+
+        function unlockBodyScroll() {
+            if (!isMobileDevice()) return;
+
+            const wrapper = document.getElementById('page-wrapper');
+            wrapper.classList.remove('no-page-scroll');
+            wrapper.style.position = '';
+            wrapper.style.top = '';
+            wrapper.style.width = '';
+
+            // window.scrollTo(0, savedScrollY);
+        }
+
+        function initSelect2() {
+            const $el = $('.js-example-basic-single3');
+
+            if (!$el.length) return;
+
+            $el.each(function () {
+                const $this = $(this);
+
+
+                if ($this.data('select2')) {
+                    return
+                }
+                ;
+
+                $this.select2({
+                    ajax: {
+                        url: '{{ route('user.get-medicine-product') }}',
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return {
+                                q: params.term
+                            };
+                        },
+                        processResults: function (data) {
+                            return {
+                                results: data.results
+                            };
+                        },
+                        cache: true
+                    },
+                    placeholder: 'Select Medicine Type',
+                    dropdownParent: $('body'),
+                    minimumInputLength: 2,
+                    width: '100%'
+                }).on('select2:select', function (e) {
+                    const product = e.params.data;
+
+                    const row = $this.closest('tr');
+
+
+                    row.find('input[name*="[companyId]"]').val(product.company_id);
+                    row.find('input[name*="[product_id]"]').val(product.id);
+                    row.find('input[name*="[productName]"]').val(product.productName);
+                    row.find('input[name*="[box_per_pic]"]').val(product.box_per_pic);
+                    row.find('input[name*="[unit_price]"]').val(product.unit_price);
+
+
+                    row.closest('tr').find('input[name*="[price]"]').val(product.unit_price);
+                    row.closest('tr').find('input[name*="[stock]"]').val(product.stock);
+                });
+
+            });
+        }
+
+        function initSelect2Scroll(){
+            let savedScrollY = 0;
+
+            // When ANY Select2 opens …
+            $(document).on('select2:open', function () {
+
+                /* ---------- lock the page ---------- */
+                // savedScrollY = window.scrollY || window.pageYOffset;
+                document.body.classList.add('no-page-scroll');
+                // keep visual position (especially iOS)
+                // document.body.style.top = `-${savedScrollY}px`;
+
+                /* ---------- optional: hide keyboard so list is taller ---------- */
+                const searchField = document.querySelector('.select2-search__field');
+                if (searchField) {
+                    setTimeout(() => searchField.blur(), 50);      // brief focus → blur
+                }
+            });
+
+            // When ANY Select2 closes …
+            $(document).on('select2:close', function () {
+
+                /* ---------- unlock the page ---------- */
+                document.body.classList.remove('no-page-scroll');
+                document.body.style.top = '';
+                // window.scrollTo(0, savedScrollY);   // jump back to original spot
+            });
+        }
+
+        function addRow () {
+            const tbody = document.getElementById('invoice-order-item');
+            const row   = document.createElement('tr');
+            row.classList.add('invoice-row');
+
+            row.innerHTML = `
+            <td style="width: 280px; position: relative;">
+                <div wire:ignore>
+                    <select class="js-example-basic-single3 form-select" name="rows[${currentIndex}][product_id]">
+                        <option value="">Select Medicine Type</option>
+                    </select>
+                    <div class="text-danger validation-error mt-1 qty-pieces-error"></div>
+                </div>
+                <input name="rows[${currentIndex}][companyId]"   type="hidden">
+                <input name="rows[${currentIndex}][productName]" type="hidden">
+                <input name="rows[${currentIndex}][product_id]"  type="hidden">
+                <input name="rows[${currentIndex}][box_per_pic]" type="hidden">
+                <input name="rows[${currentIndex}][unit_price]"  type="hidden">
+            </td>
+            <td>
+                <div class="d-flex">
+                    <input type="number" name="rows[${currentIndex}][qty]"    class="form-control me-2" placeholder="Box"    style="width:50%">
+                    <input type="number" step="any" name="rows[${currentIndex}][pieces]" class="form-control" placeholder="Pieces" style="width:50%">
+                </div>
+            </td>
+            <td>
+                <input readonly name="rows[${currentIndex}][price]" step="any" type="number" class="form-control" placeholder="Enter price">
+            </td>
+
+            @if (auth()->user()->role == ADMIN_ROLE)
+                <td>
+                    <input type="number" name="rows[${currentIndex}][discount]" class="form-control" placeholder="Discount" step="any" style="width:80px">
+            </td>
+            @endif
+                <td>
+                    <input readonly name="rows[${currentIndex}][total]" type="text" class="form-control" placeholder="Total" style="width:90px">
+            </td>
+            <td>
+                <button type="button" onclick="removeRow(this)" class="btn btn-danger btn-xs">
+                    <i class="fa-solid fa-delete-left"></i>
+                </button>
+            </td>`;
+
+            tbody.appendChild(row);
+
+            const $select = $(row).find('.js-example-basic-single3').select2({
+                ajax: {
+                    url: '{{ route('user.get-medicine-product') }}',
+                    dataType: 'json',
+                    delay: 250,
+                    data: params  => ({ q: params.term }),
+                    processResults: data => ({ results: data.results }),
+                    cache: true
+                },
+                placeholder: 'Select Medicine Type',
+                dropdownParent: $('body'),
+                minimumInputLength: 2,
+                width: '100%'
+            }).on('select2:select', function (e) {
+                const p   = e.params.data;
+                const $tr = $(this).closest('tr');
+                $tr.find('input[name*="[companyId]"]').val(p.company_id);
+                $tr.find('input[name*="[product_id]"]').val(p.id);
+                $tr.find('input[name*="[productName]"]').val(p.productName);
+                $tr.find('input[name*="[box_per_pic]"]').val(p.box_per_pic);
+                $tr.find('input[name*="[unit_price]"]').val(p.unit_price);
+                $tr.find('input[name*="[price]"]').val(p.unit_price);
+                $tr.find('input[name*="[stock]"]').val(p.stock);
+            });
+
+            // setTimeout(() => $select.select2('open'), 0);
+            $('.js-example-basic-single3').select2('close');
+            // setTimeout(() => {
+            //     const select2Container = $(row).find('.js-example-basic-single3');
+            //     if (select2Container.length) {
+            //         select2Container.select2('open');
+            //     }
+            // }, 0);
+            setTimeout(() => {
+                $(row).find('.js-example-basic-single3').select2('open');
+            }, 100);
+
+            currentIndex++;
+        }
+
+        function removeRow(button) {
+            const row = button.closest('tr');
+
+            row.remove();
+
+        }
+
+        function isMobileDevice() {
+            return window.innerWidth <= 768;
+        }
+
+        document.addEventListener("keydown", function (e) {
+            if (e.ctrlKey && e.code === "Space" && !e.repeat) {
+                if (invoiceId && invoiceId.value && parseInt(invoiceId.value) > 0) {
+                    return
+                }else {
+                    addRow();
+                }
+            }
+        });
+
+        $(document).ready(function () {
+
+            $(document)
+                .off('select2:open.pagelock select2:close.pagelock')
+                .on('select2:open.pagelock',  '.js-example-basic-single3', lockBodyScroll)
+                .on('select2:close.pagelock', '.js-example-basic-single3', unlockBodyScroll);
+
+            initSelect2();
+        });
+
+        function generatePdf(type='',status=''){
+
+            $('.select2-error, .qty-pieces-error').html('');
+            let isValid = true;
+
+            $('[name^="rows["]').each(function () {
+                const row = $(this).closest('tr');
+                const select = row.find('.js-example-basic-single3');
+                const qtyInput = row.find('[name*="[qty]"]');
+                const piecesInput = row.find('[name*="[pieces]"]');
+                const select2Error = row.find('.select2-error');
+                const qtyPiecesError = row.find('.qty-pieces-error');
+
+                const qty = parseFloat(qtyInput.val()) || 0;
+                const pieces = parseFloat(piecesInput.val()) || 0;
+
+                if (!select.val()) {
+                    isValid = false;
+                    select2Error.html('Please select a medicine type.');
+                }
+
+                if (qty === 0 && pieces === 0) {
+                    isValid = false;
+                    qtyPiecesError.html('Enter Qty or Pieces.');
+                }
+            });
+
+
+            if (!isValid) {
+                event.preventDefault();
+                return false;
+            }
+
+            const form = $('#invoiceForm')[0];
+            const formData = new FormData(form);
+            formData.append('type', type);
+            formData.append('status', status);
+
+            $.ajax({
+                url: '{{ route('admin.save-invoice-with-pdf') }}',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    if(response.status){
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+                        Toast.fire({
+                            icon: 'success',
+                            title:'Invoice created successfully!'
+                        });
+
+                        let generatedPdf = response.InvoicePdf;
+                        $('#invoiceId').val(response.invoiceId)
+
+                        if (invoiceId && invoiceId.value && parseInt(invoiceId.value) > 0) {
+                            $('.add-new-row').attr('disabled', true);
+                        }
+
+                        showPdf(generatedPdf)
+
+                    }else {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+                        Toast.fire({
+                            icon: 'error',
+                            title: response.message
+                        });
+                    }
+
+                },
+                error: function (xhr) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Invoice created successfully!'
+                    });
+                }
+            });
+
+
+            function showPdf (data){
+                try {
+                    let base64 = data.replace(/-/g, '+').replace(/_/g, '/');
+                    const pad = base64.length % 4;
+                    if (pad) {
+                        if (pad === 1) {
+                            throw new Error('Invalid base64 string');
+                        }
+                        base64 += new Array(5 - pad).join('=');
+                    }
+
+                    const binaryString = atob(base64);
+                    const bytes = new Uint8Array(binaryString.length);
+
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+
+                    const blob = new Blob([bytes], {
+                        type: 'application/pdf'
+                    });
+                    const url = URL.createObjectURL(blob);
+
+                    // Create modal elements
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 80%;
+                    height: 80%;
+                    background: white;
+                    z-index: 1000;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                `;
+
+                    const closeButton = document.createElement('button');
+                    closeButton.textContent = '×';
+                    closeButton.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    cursor: pointer;
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    padding: 5px 10px;
+                    color: #333;
+                    z-index: 1001;
+                `;
+
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 999;
+                `;
+
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    iframe.src = url;
+
+                    // Build modal structure
+                    modal.appendChild(closeButton);
+                    modal.appendChild(iframe);
+                    document.body.appendChild(overlay);
+                    document.body.appendChild(modal);
+
+                    // Close functionality
+                    function closeModal() {
+                        document.body.removeChild(modal);
+                        document.body.removeChild(overlay);
+                        URL.revokeObjectURL(url);
+                    }
+
+                    closeButton.addEventListener('click', closeModal);
+                    overlay.addEventListener('click', closeModal);
+
+                    // Cleanup after 10 minutes as fallback
+                    setTimeout(() => {
+                        if (document.body.contains(modal)) {
+                            closeModal();
+                        }
+                    }, 600000);
+
+                } catch (error) {
+                    console.error('PDF Error:', error);
+                    alert('Error opening PDF: ' + error.message);
+                }
+            }
+        }
+
+    </script>
+
+    <script>
+        const tableBody = document.querySelector("table tbody");
+
+        function customRound(value) {
+            value = parseFloat(value);
+            if (isNaN(value)) return "0.00";
+
+            const decimalPart = value - Math.floor(value);
+
+            if (decimalPart >= 0.40) {
+                return (Math.ceil(value)).toFixed(2); // Must return string with .00
+            } else {
+                return (Math.floor(value)).toFixed(2);
+            }
+        }
+
+        function customRoundFloat(value) {
+            value = parseFloat(value);
+            if (isNaN(value)) return 0;
+
+            const decimalPart = value - Math.floor(value);
+
+            if (decimalPart >= 0.40) {
+                return (Math.ceil(value));
+            } else {
+                return (Math.floor(value));
+            }
+        }
+
+        function getInput(name) {
+            return document.querySelector(`[name="${name}"]`);
+        }
+
+        function calculateTotals() {
+            let totalPrice = 0;
+            let totalDiscount = 0;
+
+            tableBody.querySelectorAll("tr").forEach(row => {
+                const qty = parseFloat(row.querySelector('[name*="[qty]"]')?.value) || 0;
+                const pieces = parseFloat(row.querySelector('[name*="[pieces]"]')?.value) || 0;
+                const discount = parseFloat(row.querySelector('[name*="[discount]"]')?.value) || 0;
+                const boxPerPic = parseFloat(row.querySelector('[name*="[box_per_pic]"]')?.value) || 0;
+
+                const unitPrice = parseFloat(
+                    row.querySelector('[name*="[price]"]')?.value ||
+                    row.querySelector('[name*="[unit_price]"]')?.value
+                ) || 0;
+
+                const calculatedQty = (qty * boxPerPic) + pieces;
+                const lineTotal = calculatedQty * unitPrice;
+                const discountAmount = lineTotal * (discount / 100);
+                const finalLineTotal = lineTotal - discountAmount;
+
+                totalPrice += customRoundFloat(finalLineTotal);
+                totalDiscount += customRoundFloat(discountAmount);
+
+                const totalInput = row.querySelector('[name*="[total]"]');
+                if (totalInput) {
+                    totalInput.value = customRound(finalLineTotal);
+                }
+            });
+
+            const otherCharge = parseFloat(getInput("otherCharge")?.value) || 0;
+            const paidAmount = parseFloat(getInput("paidAmount")?.value) || 0;
+
+            const totalBeforeDiscount = totalPrice + totalDiscount;
+            // const grandTotal = totalBeforeDiscount + otherCharge - totalDiscount;
+            const grandTotal = totalPrice + otherCharge;
+            const dueAmount = grandTotal - paidAmount;
+
+            // console.log(totalPrice,'total')
+            // console.log(grandTotal,'grandTotal')
+            // console.log(dueAmount,'dueAmount')
+
+            getInput("total_amount").value = customRound(totalBeforeDiscount);
+            getInput("custom_discount").value = customRound(totalDiscount);
+            getInput("totalMedicinePrice").value = customRound(totalPrice);
+            getInput("grandTotal").value = customRound(grandTotal);
+            getInput("dueAmount").value = customRound(dueAmount);
+        }
+
+        function recalculateFromUserInputs(totalPrice = null, totalDiscount = null) {
+            if (totalPrice === null) {
+                totalPrice = parseFloat(getInput("totalMedicinePrice")?.value) || 0;
+            }
+            if (totalDiscount === null) {
+                totalDiscount = parseFloat(getInput("custom_discount")?.value) || 0;
+            }
+
+            const otherCharge = parseFloat(getInput("otherCharge")?.value) || 0;
+            const paidAmount = parseFloat(getInput("paidAmount")?.value) || 0;
+
+            const totalBeforeDiscount = totalPrice + totalDiscount;
+            const grandTotal =customRound((totalBeforeDiscount + otherCharge) - totalDiscount);
+            const dueAmount = customRound(grandTotal - paidAmount);
+
+            getInput("grandTotal").value = (grandTotal);
+            getInput("dueAmount").value = (dueAmount);
+        }
+
+        // 🔁 Observe all rows for changes
+        function bindRowEvents(row) {
+            row.querySelectorAll("input").forEach(input => {
+                input.addEventListener("input", calculateTotals);
+            });
+        }
+
+        // 🔁 Watch for new rows added dynamically
+        const observer = new MutationObserver(() => {
+            document.querySelectorAll("table tbody tr").forEach(bindRowEvents);
+            calculateTotals();
+        });
+        observer.observe(tableBody, { childList: true, subtree: true });
+
+        // 🔁 Watch for manual change in otherCharge / paidAmount
+        ["otherCharge", "paidAmount"].forEach(name => {
+            const input = getInput(name);
+            if (input) {
+                input.addEventListener("input", () => {
+                    recalculateFromUserInputs();
+                });
+            }
+        });
+
+        // Initial bind
+        document.querySelectorAll("table tbody tr").forEach(bindRowEvents);
+        calculateTotals();
+
+        document.addEventListener('livewire:navigated', function() {
+            window.addEventListener('show-pdf', function(e) {
+                try {
+                    let base64 = e.detail[0].replace(/-/g, '+').replace(/_/g, '/');
+                    const pad = base64.length % 4;
+                    if (pad) {
+                        if (pad === 1) {
+                            throw new Error('Invalid base64 string');
+                        }
+                        base64 += new Array(5 - pad).join('=');
+                    }
+
+                    const binaryString = atob(base64);
+                    const bytes = new Uint8Array(binaryString.length);
+
+                    for (let i = 0; i < binaryString.length; i++) {
+                        bytes[i] = binaryString.charCodeAt(i);
+                    }
+
+                    const blob = new Blob([bytes], {
+                        type: 'application/pdf'
+                    });
+                    const url = URL.createObjectURL(blob);
+
+                    // Create modal elements
+                    const modal = document.createElement('div');
+                    modal.style.cssText = `
+                    position: fixed;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    width: 80%;
+                    height: 80%;
+                    background: white;
+                    z-index: 1000;
+                    border-radius: 8px;
+                    overflow: hidden;
+                    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+                `;
+
+                    const closeButton = document.createElement('button');
+                    closeButton.textContent = '×';
+                    closeButton.style.cssText = `
+                    position: absolute;
+                    top: 10px;
+                    right: 10px;
+                    cursor: pointer;
+                    background: none;
+                    border: none;
+                    font-size: 24px;
+                    padding: 5px 10px;
+                    color: #333;
+                    z-index: 1001;
+                `;
+
+                    const overlay = document.createElement('div');
+                    overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.5);
+                    z-index: 999;
+                `;
+
+                    const iframe = document.createElement('iframe');
+                    iframe.style.width = '100%';
+                    iframe.style.height = '100%';
+                    iframe.style.border = 'none';
+                    iframe.src = url;
+
+                    // Build modal structure
+                    modal.appendChild(closeButton);
+                    modal.appendChild(iframe);
+                    document.body.appendChild(overlay);
+                    document.body.appendChild(modal);
+
+                    // Close functionality
+                    function closeModal() {
+                        document.body.removeChild(modal);
+                        document.body.removeChild(overlay);
+                        URL.revokeObjectURL(url);
+                    }
+
+                    closeButton.addEventListener('click', closeModal);
+                    overlay.addEventListener('click', closeModal);
+
+                    // Cleanup after 10 minutes as fallback
+                    setTimeout(() => {
+                        if (document.body.contains(modal)) {
+                            closeModal();
+                        }
+                    }, 600000);
+
+                } catch (error) {
+                    console.error('PDF Error:', error);
+                    alert('Error opening PDF: ' + error.message);
+                }
+            });
+        })
+    </script>
+
+    <script>
+        $('#invoiceForm').on('submit', function (e) {
+
+            e.preventDefault();
+
+            $('.select2-error, .qty-pieces-error').html('');
+            let isValid = true;
+
+            $('[name^="rows["]').each(function () {
+                const row = $(this).closest('tr');
+                const select = row.find('.js-example-basic-single3');
+                const qtyInput = row.find('[name*="[qty]"]');
+                const piecesInput = row.find('[name*="[pieces]"]');
+                const select2Error = row.find('.select2-error');
+                const qtyPiecesError = row.find('.qty-pieces-error');
+
+                const qty = parseFloat(qtyInput.val()) || 0;
+                const pieces = parseFloat(piecesInput.val()) || 0;
+
+                if (!select.val()) {
+                    isValid = false;
+                    select2Error.html('Please select a medicine type.');
+                }
+
+                if (qty === 0 && pieces === 0) {
+                    isValid = false;
+                    qtyPiecesError.html('Enter Qty or Pieces.');
+                }
+            });
+
+            const dueAmountInput = $('[name="dueAmount"]');
+            const dueAmount = parseFloat(dueAmountInput.val()) || 0;
+
+            if (dueAmount < 0) {
+                isValid = false;
+                $('.due-amount-error').html('Due amount cannot be negative.');
+            }
+
+
+            if (!isValid) {
+                event.preventDefault();
+                return false;
+            }
+
+            const formData = $(this).serialize();
+
+            $.ajax({
+                url: '{{ route('user.save-invoice') }}',
+                type: 'POST',
+                data: formData,
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                success: function (response) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+
+                    if (response.status) {
+                        Toast.fire({
+                            icon: 'success',
+                            title: 'Invoice created successfully!'
+                        });
+
+                        setTimeout(function () {
+                            window.location.href = response.routeUrl;
+                        }, 1000);
+                    } else {
+                        // 🧹 Clear previous error styles and messages
+                        $('tr.invoice-row').removeClass('duplicate-error');
+                        $('.qty-pieces-error').html('');
+
+                        // ❗ Handle duplicate row highlighting
+                        if (response.duplicate_indexes && Array.isArray(response.duplicate_indexes)) {
+                            response.duplicate_indexes.forEach(function (index) {
+                                const row = $('.invoice-row').eq(index);
+                                row.addClass('duplicate-error');
+                                const qtyPiecesError = row.find('.qty-pieces-error');
+                                qtyPiecesError.html('Duplicate entry detected!');
+                            });
+
+                            // 🔍 Scroll to first duplicate
+                            const firstRow = $('.invoice-row').eq(response.duplicate_indexes[0]);
+                            $('html, body').animate({
+                                scrollTop: firstRow.offset().top - 100
+                            }, 500);
+                        }
+
+                        // 🔔 Show error toast
+                        Toast.fire({
+                            icon: 'error',
+                            title: response.message || 'Duplicate items found!'
+                        });
+                    }
+                },
+                error: function (xhr) {
+                    const Toast = Swal.mixin({
+                        toast: true,
+                        position: "top-end",
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        didOpen: (toast) => {
+                            toast.onmouseenter = Swal.stopTimer;
+                            toast.onmouseleave = Swal.resumeTimer;
+                        }
+                    });
+                    Toast.fire({
+                        icon: 'error',
+                        title: 'Invoice created successfully!'
+                    });
+                }
+            });
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            $('#pending_invoice').click(function() {
+                $('.select2-error, .qty-pieces-error').html('');
+                let isValid = true;
+
+                $('[name^="rows["]').each(function () {
+                    const row = $(this).closest('tr');
+                    const select = row.find('.js-example-basic-single3');
+                    const qtyInput = row.find('[name*="[qty]"]');
+                    const piecesInput = row.find('[name*="[pieces]"]');
+                    const select2Error = row.find('.select2-error');
+                    const qtyPiecesError = row.find('.qty-pieces-error');
+
+                    const qty = parseFloat(qtyInput.val()) || 0;
+                    const pieces = parseFloat(piecesInput.val()) || 0;
+
+                    if (!select.val()) {
+                        isValid = false;
+                        select2Error.html('Please select a medicine type.');
+                    }
+
+                    if (qty === 0 && pieces === 0) {
+                        isValid = false;
+                        qtyPiecesError.html('Enter Qty or Pieces.');
+                    }
+                });
+
+                const dueAmountInput = $('[name="dueAmount"]');
+                const dueAmount = parseFloat(dueAmountInput.val()) || 0;
+
+                if (dueAmount < 0) {
+                    isValid = false;
+                    $('.due-amount-error').html('Due amount cannot be negative.');
+                }
+
+
+                if (!isValid) {
+                    event.preventDefault();
+                    return false;
+                }
+
+                const formData = $('#invoiceForm').serialize();
+
+                $.ajax({
+                    url: '{{ route('user.save-pending-invoice') }}',
+                    type: 'POST',
+                    data: formData,
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function (response) {
+
+                        if(response.status){
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: "top-end",
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.onmouseenter = Swal.stopTimer;
+                                    toast.onmouseleave = Swal.resumeTimer;
+                                }
+                            });
+                            Toast.fire({
+                                icon: 'success',
+                                title:'Invoice created successfully!'
+                            });
+
+                            setTimeout(function (){
+                                window.location.href = response.routeUrl;
+                            },1000)
+
+                        }else {
+                            const Toast = Swal.mixin({
+                                toast: true,
+                                position: "top-end",
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                didOpen: (toast) => {
+                                    toast.onmouseenter = Swal.stopTimer;
+                                    toast.onmouseleave = Swal.resumeTimer;
+                                }
+                            });
+                            Toast.fire({
+                                icon: 'error',
+                                title: response.message
+                            });
+                        }
+
+
+                    },
+                    error: function (xhr) {
+                        const Toast = Swal.mixin({
+                            toast: true,
+                            position: "top-end",
+                            showConfirmButton: false,
+                            timer: 3000,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.onmouseenter = Swal.stopTimer;
+                                toast.onmouseleave = Swal.resumeTimer;
+                            }
+                        });
+                        Toast.fire({
+                            icon: 'error',
+                            title: 'Invoice created successfully!'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+@endpush

@@ -1,0 +1,464 @@
+@import url("https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&display=swap");
+* {
+    margin: 0;
+    padding: 0;
+}
+body {
+    font-size: 15px;
+    line-height: normal;
+    font-weight: 400;
+    font-family: "Open Sans", sans-serif;
+}
+body a {
+    text-decoration: none;
+    color: #1a2242;
+}
+body a:hover {
+    color: #00214a;
+}
+body ul {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+body img {
+    max-width: 100%;
+}
+.header-area {
+    padding: 30px 0px;
+    background: #fff;
+    -webkit-box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.1);
+}
+.mainmenu {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: end;
+    -ms-flex-pack: end;
+    justify-content: flex-end;
+}
+.mainmenu li {
+    margin-right: 40px;
+}
+@media (max-width: 767px) {
+    .mainmenu li {
+        margin-right: 25px;
+    }
+}
+.mainmenu li:last-child {
+    margin-right: 0;
+}
+.mainmenu li a {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    color: #1a2242;
+    font-size: 16px;
+    font-weight: 500;
+}
+.mainmenu li a:hover,
+.mainmenu li a.active {
+    color: #00214a;
+}
+.logo {
+    margin-bottom: 0;
+    font-size: 24px;
+    font-weight: 700;
+    text-transform: capitalize;
+}
+.main-content {
+    padding: 70px 0px;
+}
+.table-wrap {
+    padding: 30px;
+    -webkit-box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+}
+@media (max-width: 767px) {
+    .table-wrap {
+        padding: 15px;
+    }
+}
+.table-header {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+    -webkit-box-pack: justify;
+    -ms-flex-pack: justify;
+    justify-content: space-between;
+    margin-bottom: 30px;
+}
+.table-header .title {
+    font-size: 24px;
+    margin-bottom: 0;
+    font-weight: 600;
+}
+.table-search {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -ms-flex-wrap: wrap;
+    flex-wrap: wrap;
+}
+@media (max-width: 767px) {
+    .table-search {
+        width: 100%;
+    }
+}
+.table-search .search {
+    position: relative;
+    margin-right: 25px;
+}
+@media (max-width: 767px) {
+    .table-search .search {
+        margin-right: 0;
+        margin-top: 15px;
+        width: 100%;
+        margin-bottom: 10px;
+    }
+}
+.table-search .search input {
+    width: 250px;
+    padding: 5px 35px 5px 15px;
+    height: 45px;
+    -webkit-transition: all 0.4s ease-in-out 0s;
+    transition: all 0.4s ease-in-out 0s;
+    border: 1px solid #e5e5e5;
+    border-radius: 50px;
+}
+@media (max-width: 767px) {
+    .table-search .search input {
+        width: 100%;
+    }
+}
+.table-search .search input:focus {
+    outline: none;
+    border-color: #00214a;
+}
+.table-search .search .search-btn {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    -webkit-transform: translateY(-50%);
+    transform: translateY(-50%);
+}
+.table-search .search .search-btn svg {
+    height: 15px;
+}
+.table-search .add-product {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    min-height: 45px;
+    min-width: 120px;
+    padding: 5px 20px;
+    background: #00214a;
+    border-radius: 50px;
+    border: 2px solid #00214a;
+    color: #fff;
+    font-weight: 500;
+    -webkit-transition: all 0.4s ease-in-out 0s;
+    transition: all 0.4s ease-in-out 0s;
+}
+@media (max-width: 767px) {
+    .table-search .add-product {
+        min-width: 100%;
+    }
+}
+.table-search .add-product:hover {
+    background: transparent;
+    color: #00214a;
+}
+.table-search .add-product:hover svg path {
+    fill: #00214a;
+}
+.table-search .add-product svg {
+    height: 18px;
+    margin-right: 10px;
+}
+.table-search .add-product svg path {
+    fill: #fff;
+    -webkit-transition: all 0.4s ease-in-out 0s;
+    transition: all 0.4s ease-in-out 0s;
+}
+@media (max-width: 991px) {
+    .table-responisve {
+        overflow: hidden;
+        overflow-x: scroll;
+    }
+}
+.table-responisve .table-style {
+    width: 100%;
+}
+@media (max-width: 991px) {
+    .table-responisve .table-style {
+        min-width: 800px;
+    }
+}
+.table-responisve .table-style thead tr th {
+    height: 60px;
+    background: #c5c8d0;
+    padding: 10px 20px;
+    border: 1px solid #c5c8d0;
+}
+.table-responisve .table-style tbody tr td,
+.table-responisve .table-style tbody tr th,
+.table-responisve .table-style tfoot tr td,
+.table-responisve .table-style tfoot tr th {
+    height: 50px;
+    border: 1px solid #c5c8d0;
+    padding: 10px 20px;
+    font-size: 15px;
+}
+.table-responisve .table-style tbody tr td .input-style input,
+.table-responisve .table-style tbody tr th .input-style input,
+.table-responisve .table-style tfoot tr td .input-style input,
+.table-responisve .table-style tfoot tr th .input-style input {
+    padding: 0px 10px;
+}
+.table-responisve .table-style tbody tr td .table-action,
+.table-responisve .table-style tbody tr th .table-action,
+.table-responisve .table-style tfoot tr td .table-action,
+.table-responisve .table-style tfoot tr th .table-action {
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+.table-responisve .table-style tbody tr td .table-action li,
+.table-responisve .table-style tbody tr th .table-action li,
+.table-responisve .table-style tfoot tr td .table-action li,
+.table-responisve .table-style tfoot tr th .table-action li {
+    margin-right: 10px;
+}
+.table-responisve .table-style tbody tr td .table-action li a,
+.table-responisve .table-style tbody tr th .table-action li a,
+.table-responisve .table-style tfoot tr td .table-action li a,
+.table-responisve .table-style tfoot tr th .table-action li a {
+    min-height: 30px;
+    min-width: 30px;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    border-radius: 6px;
+}
+.table-responisve .table-style tbody tr td .table-action li a.edit,
+.table-responisve .table-style tbody tr th .table-action li a.edit,
+.table-responisve .table-style tfoot tr td .table-action li a.edit,
+.table-responisve .table-style tfoot tr th .table-action li a.edit {
+    background: rgba(13, 202, 240, 0.1);
+    border: 1px solid #0dcaf0;
+}
+.table-responisve .table-style tbody tr td .table-action li a.edit svg path,
+.table-responisve .table-style tbody tr th .table-action li a.edit svg path,
+.table-responisve .table-style tfoot tr td .table-action li a.edit svg path,
+.table-responisve .table-style tfoot tr th .table-action li a.edit svg path {
+    fill: #0dcaf0;
+}
+.table-responisve .table-style tbody tr td .table-action li a.delete,
+.table-responisve .table-style tbody tr th .table-action li a.delete,
+.table-responisve .table-style tfoot tr td .table-action li a.delete,
+.table-responisve .table-style tfoot tr th .table-action li a.delete {
+    background: rgba(220, 53, 69, 0.1);
+    border: 1px solid #dc3545;
+}
+.table-responisve .table-style tbody tr td .table-action li a.delete svg path,
+.table-responisve .table-style tbody tr th .table-action li a.delete svg path,
+.table-responisve .table-style tfoot tr td .table-action li a.delete svg path,
+.table-responisve .table-style tfoot tr th .table-action li a.delete svg path {
+    fill: #dc3545;
+}
+.table-responisve .table-style tbody tr td .table-action li a.print,
+.table-responisve .table-style tbody tr th .table-action li a.print,
+.table-responisve .table-style tfoot tr td .table-action li a.print,
+.table-responisve .table-style tfoot tr th .table-action li a.print {
+    background: rgba(255, 193, 7, 0.1);
+    border: 1px solid #ffc107;
+}
+.table-responisve .table-style tbody tr td .table-action li a.print svg path,
+.table-responisve .table-style tbody tr th .table-action li a.print svg path,
+.table-responisve .table-style tfoot tr td .table-action li a.print svg path,
+.table-responisve .table-style tfoot tr th .table-action li a.print svg path {
+    fill: #ffc107;
+}
+.table-responisve .table-style tbody tr td .table-action li a svg,
+.table-responisve .table-style tbody tr th .table-action li a svg,
+.table-responisve .table-style tfoot tr td .table-action li a svg,
+.table-responisve .table-style tfoot tr th .table-action li a svg {
+    height: 15px;
+}
+.table-responisve .table-style tbody tr td .table-action li:last-child,
+.table-responisve .table-style tbody tr th .table-action li:last-child,
+.table-responisve .table-style tfoot tr td .table-action li:last-child,
+.table-responisve .table-style tfoot tr th .table-action li:last-child {
+    margin-right: 0;
+}
+.input-style {
+    margin-bottom: 25px;
+    position: relative;
+}
+.input-style label {
+    display: block;
+    margin-bottom: 10px;
+    font-weight: 500;
+    color: #1a2242;
+}
+.input-style label.error {
+    color: #dc3545;
+    margin-bottom: 0;
+    margin-top: 5px;
+}
+.input-style input {
+    width: 100%;
+    height: 45px;
+    padding: 5px 15px;
+    border: 1px solid #c5c8d0;
+    border-radius: 5px;
+    -webkit-transition: all 0.4s ease-in-out 0s;
+    transition: all 0.4s ease-in-out 0s;
+}
+.input-style input.error {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+.input-style input.error:focus {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+.input-style input:focus {
+    outline: none;
+    border-color: #00214a;
+}
+.input-style .auto-suggestion {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    background: #fff;
+    -webkit-box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+    box-shadow: 0px 2px 15px rgba(0, 0, 0, 0.1);
+    z-index: 10;
+    max-height: 150px;
+    overflow: auto;
+    display: none;
+    padding: 15px 0px;
+}
+.input-style .auto-suggestion li {
+    min-height: 30px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    font-weight: 500;
+    cursor: pointer;
+    padding: 4px 15px;
+}
+.input-style .auto-suggestion li.active {
+    background: rgba(0, 33, 74, 0.1);
+    color: #00214a;
+}
+.btn-style {
+    min-height: 45px;
+    min-width: 100%;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    background: #00214a;
+    color: #fff;
+    font-weight: 500;
+    border: 2px solid #00214a;
+    border-radius: 5px;
+    -webkit-transition: all 0.4s ease-in-out 0s;
+    transition: all 0.4s ease-in-out 0s;
+    padding: 5px 20px;
+    cursor: pointer;
+}
+.btn-style.btn-outlined {
+    background: transparent;
+    color: #00214a;
+    border: 2px solid #00214a;
+    border-radius: 30px;
+}
+.btn-style.btn-outlined:hover {
+    background: #00214a;
+    color: #fff;
+}
+.btn-style.btn-inline {
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    min-width: unset;
+    min-height: 40px;
+}
+.btn-style:hover {
+    background: transparent;
+    color: #00214a;
+}
+.modal-wrap .title {
+    font-size: 20px;
+}
+.modal-wrap .modal-body {
+    padding: 30px;
+}
+.customer-wrap .input-style {
+    margin-bottom: 10px;
+    display: -webkit-box;
+    display: -ms-flexbox;
+    display: flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+}
+.customer-wrap .input-style label {
+    width: 180px;
+}
+.remove-invoice {
+    min-height: 30px;
+    min-width: 30px;
+    display: -webkit-inline-box;
+    display: -ms-inline-flexbox;
+    display: inline-flex;
+    -webkit-box-align: center;
+    -ms-flex-align: center;
+    align-items: center;
+    -webkit-box-pack: center;
+    -ms-flex-pack: center;
+    justify-content: center;
+    background: rgba(220, 53, 69, 0.1);
+    color: #dc3545;
+    border-radius: 50%;
+}
