@@ -22,6 +22,17 @@
         .duplicate-error {
             background-color: #f55d6a !important; /* light red */
         }
+
+        .discount-negative-error {
+            border: 1px solid #f55d6a !important;
+            background-color: #fff5f5 !important;
+        }
+
+        .discount-error-text {
+            color: #f55d6a;
+            font-size: 12px;
+            margin-top: 4px;
+        }
     </style>
 @endpush
 @section('content')
@@ -696,6 +707,10 @@
             formData.append('type', type);
             formData.append('status', status);
 
+            if (!checkNegativeDiscountTotal()) {
+                return;
+            }
+
             $.ajax({
                 url: '{{ route('admin.save-update-invoice-with-pdf') }}',
                 type: 'POST',
@@ -1060,9 +1075,7 @@
             return parseFloat(value) || 0; // Convert to float, fallback to 0
         }
 
-    </script>
 
-    <script>
         $('#invoiceForm').on('submit', function (e) {
 
             e.preventDefault();
@@ -1110,6 +1123,10 @@
             if (!isValid) {
                 event.preventDefault();
                 return false;
+            }
+
+            if (!checkNegativeDiscountTotal()) {
+                return;
             }
 
             const formData = $(this).serialize();
@@ -1192,9 +1209,6 @@
                 }
             });
         });
-    </script>
-
-    <script>
         document.addEventListener('livewire:navigated', function() {
             window.addEventListener('show-pdf', function(e) {
                 try {
@@ -1296,9 +1310,7 @@
                 }
             });
         })
-    </script>
 
-    <script>
         $(document).ready(function() {
             $('#pending_invoice').click(function() {
 
@@ -1310,6 +1322,10 @@
                     return;
                 } else {
                     $('.due-amount-error').text('');
+                }
+
+                if (!checkNegativeDiscountTotal()) {
+                    return;
                 }
 
                 const formData = $('#invoiceForm').serialize();
@@ -1395,7 +1411,73 @@
                 });
 
             });
+
+            $('#invoiceForm').on('submit', function (e) {
+
+                // First check negative discount total
+                if (!checkNegativeDiscountTotal()) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // If no error, form will submit normally
+                return true;
+            });
         });
+
+
+        function showToast(icon, title) {
+            const Toast = Swal.mixin({
+                toast: true,
+                position: "top-end",
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.onmouseenter = Swal.stopTimer;
+                    toast.onmouseleave = Swal.resumeTimer;
+                }
+            });
+
+            Toast.fire({
+                icon: icon,
+                title: title
+            });
+        }
+
+        function checkNegativeDiscountTotal() {
+            let hasError = false;
+
+            // Clear previous errors
+            $('.discount-negative-error').removeClass('discount-negative-error');
+            $('.discount-error-text').remove();
+
+            $('.invoice-row').each(function () {
+                const row = $(this);
+
+                const totalRaw = row.find('[name$="[total]"]').val() || '0';
+                const total = parseFloat(totalRaw.replace(/,/g, ''));
+
+                const discountInput = row.find('[name$="[discount]"]');
+
+                if (total < 0) {
+                    hasError = true;
+
+                    discountInput.addClass('discount-negative-error');
+
+                    discountInput.after(
+                        '<div class="discount-error-text">Discount makes total negative.</div>'
+                    );
+                }
+            });
+
+            if (hasError) {
+                showToast('error', 'Discount cannot make total negative!');
+                return false;
+            }
+
+            return true;
+        }
     </script>
 
 @endpush

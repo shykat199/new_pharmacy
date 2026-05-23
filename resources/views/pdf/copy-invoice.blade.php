@@ -128,7 +128,17 @@
                 ?>
             <tr>
                 <td><?= $key + 1 ?></td>
-                <td>{{ $order['product']->name ?? $getProductDetails->name.' '.\Illuminate\Support\Str::limit($getProductDetails->strength,3,'').' '.\Illuminate\Support\Str::limit($getProductDetails->type,3,'') .' '. \Illuminate\Support\Str::limit($getProductDetails->company->name,3,'')}}</td>
+                <td style="white-space: normal; word-break: break-word; max-width: 250px;">
+                    {{
+                        $order['product']->name
+                        ?? trim(
+                            ($getProductDetails->name ?? '') . ' ' .
+                            ($getProductDetails->strength ?? '') . ' ' .
+                            ($getProductDetails->type ?? '') . ' ' .
+                            \Illuminate\Support\Str::limit($getProductDetails->company->name ?? '', 3, '')
+                        )
+                    }}
+                </td>
                 <td>{{ number_format($order['price'], 2) }}</td>
                 <td>{{ getQuotient($finalQty, (int) $box_per_pic) }}</td>
                 <td>{{ getRemainder($finalQty, (int) $box_per_pic) }}</td>

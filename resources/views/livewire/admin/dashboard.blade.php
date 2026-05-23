@@ -257,6 +257,8 @@
                                     </div>
                                     <p class="text-secondary">
                                         Phone: {{ !empty($user->user) ? $user->user->phone : 'Unknown' }}</p>
+                                    <p class="text-secondary">
+                                        Date: {{ !empty($user->created_at) ? \Carbon\Carbon::parse($user->created_at)->format('d-M-Y') : 'N/A' }}</p>
                                 </div>
                             </a>
                         @endforeach

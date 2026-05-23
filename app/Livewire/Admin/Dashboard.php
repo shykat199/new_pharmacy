@@ -38,8 +38,11 @@ class Dashboard extends Component
 //        $this->totalDueAmount = Invoices::sum('due_amount');
         $this->totalDueAmount = \App\Models\User::where('role', USER_ROLE)->where('status', ACTIVE_STATUS)->sum('balance');
 
-        $this->userWithDueAmount = Invoices::with('user')->select('due_amount', 'user_id', 'invoice_id', 'id')
-            ->where('due_amount','>',0)
+        $this->userWithDueAmount = Invoices::with('user')
+            ->select('due_amount', 'user_id', 'invoice_id', 'id', 'created_at')
+            ->where('due_amount', '>', 0)
+            ->where('status', PENDING_STATUS)
+            ->whereDate('created_at', today())
             ->orderByDesc('id')
             ->limit(10)
             ->get();
