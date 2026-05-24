@@ -134,6 +134,7 @@
                                                         <!-- options go here -->
                                                     </select>
                                                 </div>
+                                                <div class="text-danger validation-error mt-1 select2-error"></div>
                                                 <div class="text-danger validation-error mt-1 qty-pieces-error"></div>
                                             </div>
 
@@ -408,7 +409,7 @@
 
     <script>
 
-        $(document).on('wheel', '.qty-field, .pieces-field, .product-price, .product-discount', function () {
+        $(document).on('wheel', '.qty-field, .pieces-field, .product-price, .product-discount, #otherCharge, #paidAmount', function () {
             this.blur();
         });
 
@@ -470,9 +471,97 @@
         arrowInit();
 
 
-        let currentIndex = 1;
+        let currentIndex = document.querySelectorAll('#invoice-order-item .invoice-row').length;
         let invoiceId = document.getElementById('invoiceId')
         let savedScrollY = 0;
+
+        function clearInvoiceErrors(scope = document) {
+            const $scope = $(scope);
+            $scope.find('.select2-error, .qty-pieces-error').html('');
+            $scope.find('.invoice-row').removeClass('duplicate-error');
+            if ($scope.hasClass('invoice-row')) {
+                $scope.removeClass('duplicate-error');
+            }
+            $('.due-amount-error').html('');
+        }
+
+        function updateRemoveButtons() {
+            const rows = document.querySelectorAll('#invoice-order-item .invoice-row');
+
+            rows.forEach(row => {
+                const button = row.querySelector('button[onclick^="removeRow"]');
+                if (button) {
+                    button.disabled = rows.length <= 1;
+                }
+            });
+        }
+
+        function reindexInvoiceRows() {
+            const rows = document.querySelectorAll('#invoice-order-item .invoice-row');
+
+            rows.forEach((row, index) => {
+                row.querySelectorAll('[name^="rows["]').forEach(field => {
+                    const match = field.name.match(/^rows\[\d+\]\[([^\]]+)\]$/);
+                    if (match) {
+                        field.name = `rows[${index}][${match[1]}]`;
+                    }
+                });
+            });
+
+            currentIndex = rows.length;
+            updateRemoveButtons();
+        }
+
+        function getRowProductId(row) {
+            const $row = $(row);
+            return ($row.find('input[name*="[product_id]"]').val() || $row.find('.js-example-basic-single3').val() || '').toString();
+        }
+
+        function showDuplicateRows(indexes) {
+            const uniqueIndexes = [...new Set(indexes.map(index => parseInt(index, 10)).filter(index => !Number.isNaN(index)))];
+
+            uniqueIndexes.forEach(function (index) {
+                const row = $('.invoice-row').eq(index);
+                row.addClass('duplicate-error');
+                row.find('.qty-pieces-error').html('Duplicate entry detected!');
+            });
+
+            if (uniqueIndexes.length) {
+                const firstRow = $('.invoice-row').eq(uniqueIndexes[0]);
+                if (firstRow.length) {
+                    $('html, body').animate({
+                        scrollTop: firstRow.offset().top - 100
+                    }, 500);
+                }
+            }
+        }
+
+        function validateDuplicateRows() {
+            const seenProductRows = {};
+            const duplicateIndexes = [];
+
+            $('.invoice-row').each(function (index) {
+                const productId = getRowProductId(this);
+
+                if (!productId) {
+                    return;
+                }
+
+                if (seenProductRows[productId] !== undefined) {
+                    duplicateIndexes.push(seenProductRows[productId], index);
+                    return;
+                }
+
+                seenProductRows[productId] = index;
+            });
+
+            if (duplicateIndexes.length) {
+                showDuplicateRows(duplicateIndexes);
+                return false;
+            }
+
+            return true;
+        }
 
         function lockBodyScroll() {
             if (!isMobileDevice()) return;
@@ -536,6 +625,7 @@
 
                     const row = $this.closest('tr');
 
+                    clearInvoiceErrors();
 
                     row.find('input[name*="[companyId]"]').val(product.company_id);
                     row.find('input[name*="[product_id]"]').val(product.id);
@@ -589,9 +679,10 @@
             row.innerHTML = `
             <td style="width: 280px; position: relative;">
                 <div wire:ignore>
-                    <select class="js-example-basic-single3 form-select" name="rows[${currentIndex}][product_id]">
+                    <select class="js-example-basic-single3 form-select">
                         <option value="">Select Medicine Type</option>
                     </select>
+                    <div class="text-danger validation-error mt-1 select2-error"></div>
                     <div class="text-danger validation-error mt-1 qty-pieces-error"></div>
                 </div>
                 <input value="" name="rows[${currentIndex}][companyId]" type="hidden" class="form-control">
@@ -625,6 +716,7 @@
                 </td>`;
 
                 tbody.appendChild(row);
+                reindexInvoiceRows();
 
                 const selectElement = $(row).find('.js-example-basic-single3').select2({
                     ajax: {
@@ -646,6 +738,7 @@
                 }).on('select2:select', function (e) {
                     const product = e.params.data;
                     const thisRow = $(this).closest('tr');
+                    clearInvoiceErrors();
                     thisRow.find('input[name*="[companyId]"]').val(product.company_id);
                     thisRow.find('input[name*="[product_id]"]').val(product.id);
                     thisRow.find('input[name*="[productName]"]').val(product.productName);
@@ -669,14 +762,28 @@
             setTimeout(() => {
                 $(row).find('.js-example-basic-single3').select2('open');
             }, 100);
-
-            currentIndex++;
         }
 
         function removeRow(button) {
+            const rows = document.querySelectorAll('#invoice-order-item .invoice-row');
+            if (rows.length <= 1) {
+                return;
+            }
+
             const row = button.closest('tr');
+            const select = $(row).find('.js-example-basic-single3');
+
+            if (select.data('select2')) {
+                select.select2('destroy');
+            }
 
             row.remove();
+            clearInvoiceErrors();
+            reindexInvoiceRows();
+
+            if (typeof calculateTotals === 'function') {
+                calculateTotals();
+            }
 
         }
 
@@ -702,16 +809,17 @@
                 .on('select2:close.pagelock', '.js-example-basic-single3', unlockBodyScroll);
 
             initSelect2();
+            reindexInvoiceRows();
         });
 
         function generatePdf(type='',status=''){
 
-            $('.select2-error, .qty-pieces-error').html('');
+            clearInvoiceErrors();
+            reindexInvoiceRows();
             let isValid = true;
 
-            $('[name^="rows["]').each(function () {
-                const row = $(this).closest('tr');
-                const select = row.find('.js-example-basic-single3');
+            $('.invoice-row').each(function () {
+                const row = $(this);
                 const qtyInput = row.find('[name*="[qty]"]');
                 const piecesInput = row.find('[name*="[pieces]"]');
                 const select2Error = row.find('.select2-error');
@@ -719,8 +827,9 @@
 
                 const qty = parseFloat(qtyInput.val()) || 0;
                 const pieces = parseFloat(piecesInput.val()) || 0;
+                const productId = getRowProductId(row);
 
-                if (!select.val()) {
+                if (!productId) {
                     isValid = false;
                     select2Error.html('Please select a medicine type.');
                 }
@@ -731,9 +840,11 @@
                 }
             });
 
+            if (!validateDuplicateRows()) {
+                isValid = false;
+            }
 
             if (!isValid) {
-                event.preventDefault();
                 return false;
             }
 
@@ -781,18 +892,7 @@
 
                     } else {
                         if (response.duplicate_indexes && Array.isArray(response.duplicate_indexes)) {
-                            response.duplicate_indexes.forEach(function (index) {
-                                const row = $('.invoice-row').eq(index);
-                                row.addClass('duplicate-error');
-                                const qtyPiecesError = row.find('.qty-pieces-error');
-                                qtyPiecesError.html('Duplicate entry detected!');
-                            });
-
-                            // Scroll to first duplicate
-                            const firstRow = $('.invoice-row').eq(response.duplicate_indexes[0]);
-                            $('html, body').animate({
-                                scrollTop: firstRow.offset().top - 100
-                            }, 500);
+                            showDuplicateRows(response.duplicate_indexes);
                         }
 
                         Toast.fire({
@@ -1166,19 +1266,18 @@
             let seenKeys = [];
             let hasValidRows = false;
 
-            $('.select2-error, .qty-pieces-error').html('');
-            $('.invoice-row').css('border', '');
+            clearInvoiceErrors();
+            reindexInvoiceRows();
 
 
             $('.invoice-row').each(function () {
                 const row = $(this);
-                const select = row.find('.js-example-basic-single3');
                 const qtyInput = row.find('[name*="[qty]"]');
                 const piecesInput = row.find('[name*="[pieces]"]');
                 const select2Error = row.find('.select2-error');
                 const qtyPiecesError = row.find('.qty-pieces-error');
 
-                const productId = select.val();
+                const productId = getRowProductId(row);
                 const qtyValRaw = qtyInput.val().trim();
                 const piecesValRaw = piecesInput.val().trim();
 
@@ -1216,6 +1315,10 @@
 
                 hasValidRows = true;
             });
+
+            if (!validateDuplicateRows()) {
+                isValid = false;
+            }
 
             const dueAmountInput = $('[name="dueAmount"]');
             const dueAmount = parseFloat(dueAmountInput.val()) || 0;
@@ -1257,17 +1360,7 @@
                         }, 1000);
                     } else {
                         if (response.duplicate_indexes && Array.isArray(response.duplicate_indexes)) {
-                            response.duplicate_indexes.forEach(function (index) {
-                                const row = $('.invoice-row').eq(index);
-                                const qtyPiecesError = row.find('.qty-pieces-error');
-                                qtyPiecesError.html('Duplicate entry detected!');
-                            });
-
-                            // Scroll to first duplicate
-                            const firstRow = $('.invoice-row').eq(response.duplicate_indexes[0]);
-                            $('html, body').animate({
-                                scrollTop: firstRow.offset().top - 100
-                            }, 500);
+                            showDuplicateRows(response.duplicate_indexes);
                         }
 
                         Toast.fire({
@@ -1299,13 +1392,13 @@
 
     <script>
         $(document).ready(function() {
-            $('#pending_invoice').click(function() {
-                $('.select2-error, .qty-pieces-error').html('');
+            $('#pending_invoice').click(function(event) {
+                clearInvoiceErrors();
+                reindexInvoiceRows();
                 let isValid = true;
 
-                $('[name^="rows["]').each(function () {
-                    const row = $(this).closest('tr');
-                    const select = row.find('.js-example-basic-single3');
+                $('.invoice-row').each(function () {
+                    const row = $(this);
                     const qtyInput = row.find('[name*="[qty]"]');
                     const piecesInput = row.find('[name*="[pieces]"]');
                     const select2Error = row.find('.select2-error');
@@ -1313,8 +1406,9 @@
 
                     const qty = parseFloat(qtyInput.val()) || 0;
                     const pieces = parseFloat(piecesInput.val()) || 0;
+                    const productId = getRowProductId(row);
 
-                    if (!select.val()) {
+                    if (!productId) {
                         isValid = false;
                         select2Error.html('Please select a medicine type.');
                     }
@@ -1324,6 +1418,10 @@
                         qtyPiecesError.html('Enter Qty or Pieces.');
                     }
                 });
+
+                if (!validateDuplicateRows()) {
+                    isValid = false;
+                }
 
                 const dueAmountInput = $('[name="dueAmount"]');
                 const dueAmount = parseFloat(dueAmountInput.val()) || 0;
@@ -1374,18 +1472,7 @@
                         } else {
                             // If server sent duplicate row indexes
                             if (response.duplicate_indexes && Array.isArray(response.duplicate_indexes)) {
-                                response.duplicate_indexes.forEach(function (index) {
-                                    const row = $('.invoice-row').eq(index);
-                                    row.addClass('duplicate-error'); // Add red border
-                                    const qtyPiecesError = row.find('.qty-pieces-error');
-                                    qtyPiecesError.html('Duplicate entry detected!');
-                                });
-
-                                // Scroll to first duplicate
-                                const firstRow = $('.invoice-row').eq(response.duplicate_indexes[0]);
-                                $('html, body').animate({
-                                    scrollTop: firstRow.offset().top - 100
-                                }, 500);
+                                showDuplicateRows(response.duplicate_indexes);
                             }
 
                             Toast.fire({
