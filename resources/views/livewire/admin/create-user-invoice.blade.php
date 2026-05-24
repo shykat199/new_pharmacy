@@ -328,7 +328,7 @@
     <div wire:ignore.self class="modal fade" id="createModal" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" style="background: rgba(0, 0, 0, 0.5);">
             <div class="modal-dialog modal-lg" role="document">
                 <div class="modal-content">
-                    <form class="forms-sample" wire:submit.prevent="saveCustomer">
+                    <form class="forms-sample" wire:submit.prevent="saveCustomer" id="invoiceForm">
                         <div class="modal-header">
                             <h5 class="modal-title">Add New Customer</h5>
                             <button wire:click.prevent="closeModal" type="button" class="btn-close" data-bs-dismiss="modal"
@@ -410,6 +410,14 @@
 
         $(document).on('wheel', '.qty-field, .pieces-field, .product-price, .product-discount', function () {
             this.blur();
+        });
+
+        const invoiceForm = document.getElementById("invoiceForm");
+
+        invoiceForm.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+            }
         });
 
         function arrowInit() {

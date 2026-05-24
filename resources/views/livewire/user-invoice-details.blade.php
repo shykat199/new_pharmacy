@@ -348,6 +348,20 @@
 @push('scripts')
 
     <script>
+        $(document).on('wheel', '.qty-field, .pieces-field, .product-price, .product-discount', function () {
+            this.blur();
+        });
+
+        const invoiceForm = document.getElementById("invoiceForm");
+
+        invoiceForm.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+    <script>
         function arrowInit(){
             document.addEventListener('keydown', function(e) {
                 // Only handle arrow keys

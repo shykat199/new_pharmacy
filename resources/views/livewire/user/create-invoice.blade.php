@@ -292,7 +292,7 @@
     <div wire:ignore.self class="modal fade" id="createModal" role="dialog" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false" style="background: rgba(0, 0, 0, 0.5);">
         <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
-                <form class="forms-sample" wire:submit.prevent="saveCustomer">
+                <form class="forms-sample" wire:submit.prevent="saveCustomer" id="invoiceForm">
                     <div class="modal-header">
                         <h5 class="modal-title">Add New Customer</h5>
                         <button wire:click.prevent="closeModal" type="button" class="btn-close" data-bs-dismiss="modal"
@@ -369,6 +369,64 @@
 
 </div>
 @push('scripts')
+
+    <script>
+        $(document).on('wheel', '.qty-field, .pieces-field, .product-price, .product-discount', function () {
+            this.blur();
+        });
+
+        const invoiceForm = document.getElementById("invoiceForm");
+
+        invoiceForm.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+            }
+        });
+    </script>
+
+    <script>
+        document.addEventListener("keydown", function (e) {
+            if (
+                e.target.classList.contains("qty-field") ||
+                e.target.classList.contains("pieces-field")
+            ) {
+                if (e.key === "ArrowUp" || e.key === "ArrowDown") {
+                    e.preventDefault();
+
+                    const currentInput = e.target;
+                    const currentRow = currentInput.closest("tr");
+
+                    if (!currentRow) return;
+
+                    const allRows = Array.from(currentRow.parentElement.querySelectorAll("tr"));
+                    const currentRowIndex = allRows.indexOf(currentRow);
+
+                    const fieldClass = currentInput.classList.contains("qty-field")
+                        ? "qty-field"
+                        : "pieces-field";
+
+                    let targetRow;
+
+                    if (e.key === "ArrowUp") {
+                        targetRow = allRows[currentRowIndex - 1];
+                    }
+
+                    if (e.key === "ArrowDown") {
+                        targetRow = allRows[currentRowIndex + 1];
+                    }
+
+                    if (targetRow) {
+                        const targetInput = targetRow.querySelector("." + fieldClass);
+
+                        if (targetInput) {
+                            targetInput.focus();
+                            targetInput.select();
+                        }
+                    }
+                }
+            }
+        });
+    </script>
 
     <script>
         let currentIndex = 1;
@@ -517,8 +575,8 @@
             </td>
             <td>
                 <div class="d-flex">
-                    <input type="number" name="rows[${currentIndex}][qty]"    class="form-control me-2" placeholder="Box"    style="width:50%">
-                    <input type="number" step="any" name="rows[${currentIndex}][pieces]" class="form-control" placeholder="Pieces" style="width:50%">
+                    <input type="number" name="rows[${currentIndex}][qty]" class="form-control me-2 qty-field" placeholder="Box" style="width:50%">
+                    <input type="number" step="any" name="rows[${currentIndex}][pieces]" class="form-control pieces-field" placeholder="Pieces" style="width:50%">
                 </div>
             </td>
             <td>
