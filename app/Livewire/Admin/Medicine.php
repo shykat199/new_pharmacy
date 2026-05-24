@@ -193,7 +193,12 @@ class Medicine extends Component
         $productDetails = Product::with('company')->find($productId);
 
         $this->stock = $productDetails->stock;
-        $this->productName = $productDetails->name .' '.  \Illuminate\Support\Str::limit($productDetails->strength,3,'') .' '. \Illuminate\Support\Str::limit($productDetails->type,3,'') .' '.'-'.' '. \Illuminate\Support\Str::limit($productDetails->company->name,3,'');
+        $this->productName = trim(
+            ($productDetails->name ?? '') . ' ' .
+            ($productDetails->strength ?? '') . ' ' .
+            ($productDetails->type ?? '') . ' ' .
+            \Illuminate\Support\Str::limit($productDetails->company->name ?? '', 3, '')
+        );
         $this->boxPerPic = $productDetails->box_per_pic;
         $this->productId = $productDetails->id;
     }
