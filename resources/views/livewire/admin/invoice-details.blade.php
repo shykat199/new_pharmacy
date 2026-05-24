@@ -437,6 +437,18 @@
             this.blur();
         });
 
+        const invoiceForm = document.getElementById("invoiceForm");
+
+        invoiceForm.addEventListener("keydown", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+            }
+        });
+
+        invoiceForm.addEventListener("submit", function (e) {
+            e.preventDefault();
+        });
+
         function arrowInit(){
             document.addEventListener('keydown', function(e) {
                 // Only handle arrow keys
